@@ -1,0 +1,354 @@
+<!--
+ * @Author: Junjie Yu <1591216902@qq.com>
+ * @Date: 2022/01/09
+-->
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport"
+              content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>代办事项</title>
+        <link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/4.7.0/css/font-awesome.min.css">
+        <style>
+            .scrollbar::-webkit-scrollbar-track
+            {
+                background-color: rgba(245, 245, 245, 0.5);
+            }
+
+            .scrollbar::-webkit-scrollbar
+            {
+                width: 10px;
+            }
+
+            .scrollbar::-webkit-scrollbar-thumb
+            {
+                border-radius: 5px;
+                background: rgba(171, 171, 171, 0.5);
+            }
+
+            html, body {
+                padding: 0;
+                margin: 0;
+                height: 100%;
+                width: 100%;
+                overflow: hidden;
+            }
+            .container {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background-image: url(http://p7.itc.cn/images01/20200624/197e5086ee9649848aefbfd6bd05494d.jpeg);
+                background-size: cover;
+                background-position: center center;
+                background-repeat:no-repeat;
+            }
+            .window {
+                position: absolute;
+                width: 800px;
+                height: 500px;
+                /*border: 1px solid #dbdbdb;*/
+                border-radius: 5px;
+                box-shadow: 0 0 50px -5px rgba(0,0,0,.5);
+                overflow: hidden;
+                backdrop-filter: blur(60px);
+                transition: width 300ms, height 300ms;
+            }
+            .bar {
+                width: 100%;
+                height: 40px;
+                background: rgba(219, 219, 219, 0.5);
+                box-shadow: 0 5px 10px -5px rgba(0,0,0,.1);
+                display: flex;
+                justify-content: flex-start;
+                align-items: center;
+            }
+            .bar:active {
+                cursor: move;
+            }
+            .action-box {
+                display: inline-flex;
+                margin-left: 16px;
+                gap: 8px;
+                height: 14px;
+            }
+            .action-btn {
+                background: red;
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+                border: 1px solid red;
+                cursor: pointer;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .content {
+                width: 100%;
+                height: calc(100% - 40px);
+                overflow: auto;
+                box-sizing: border-box;
+                padding: 8px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            }
+            .action-btn.btn-close {
+                border-color: #ff483b;
+                background: #ff6155;
+            }
+            .action-btn.btn-max {
+                border-color: #ffb217;
+                background: #ffbd30;
+            }
+            .action-btn.btn-min {
+                border-color: #00cc1b;
+                background: #4ecc4e;
+            }
+            .fa {
+                font-size: 10px;
+                margin: 0;
+                padding: 0;
+                transform: scale(.7);
+                color: transparent;
+            }
+            .action-btn:hover .fa {
+                color: #fff;
+            }
+            .text {
+                width: 100%;
+                text-align: center;
+                color: rgba(255,214,214,0.9);
+                font-size: 3rem;
+                padding: 8px 0;
+                margin: 0;
+            }
+
+            @media (max-width: 768px) {
+                .window {
+                    width: calc(100% - 24px);
+                    height: calc(100% - 24px);
+                }
+            }
+
+            @keyframes shake {
+                0% {
+                    transform: translateX(0);
+                }
+                16% {
+                    transform: translateX(-20px);
+                }
+                32% {
+                    transform: translateX(20px);
+                }
+                48% {
+                    transform: translateX(0);
+                }
+                66% {
+                    transform: translateX(-10);
+                }
+                82% {
+                    transform: translateX(10px);
+                }
+                100% {
+                    transform: translateX(0px);
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="window">
+                <div class="bar">
+                    <div class="action-box">
+                        <div class="action-btn btn-close">
+                            <i class="fa fa-times" aria-hidden="true"></i>
+                        </div>
+                        <div class="action-btn btn-max">
+                            <i class="fa fa-window-maximize" aria-hidden="true"></i>
+                        </div>
+                        <div class="action-btn btn-min">
+                            <i class="fa fa-minus" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="content scrollbar">
+                    <p class="text">ATODO.cn</p>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            (function () {
+                const windowEle = document.querySelector('.window');
+                const windowClientRect = windowEle.getBoundingClientRect();
+
+                // 窗口标准宽高
+                let winW = windowEle.clientWidth;
+                let winH = windowEle.clientHeight;
+                // 窗口实时位置
+                let winX = ~~windowClientRect.x;
+                let winY = ~~windowClientRect.y;
+                windowEle.style.left = winX + 'px';
+                windowEle.style.top = winY + 'px';
+                // 是否拖动
+                let draw = false;
+                window.addEventListener('mousedown', (e) => {
+                    if (e.target.className === 'bar') {
+                        const windowClientRect = windowEle.getBoundingClientRect();
+                        winX = windowClientRect.x;
+                        winY = windowClientRect.y;
+                        draw = true;
+                    }
+                })
+
+                window.addEventListener('mousemove', (e) => {
+                    if (draw && !isMax) {
+                        winX = ~~(winX + e.movementX);
+                        winY = ~~(winY + e.movementY);
+
+                        let documentW = window.innerWidth;
+                        let documentH = window.innerHeight;
+                        if (winX > (-winW + 40) && winX < documentW - 40) {
+                            windowEle.style.left = winX + 'px';
+                        }
+                        if (winY >= 0 && winY <= documentH - 40) {
+                            windowEle.style.top = winY + 'px';
+                        }
+                    }
+
+                    // 最大化时拖动 恢复窗口大小
+                    if (draw && isMax) {
+                        winX = ~~(winX + e.movementX);
+                        winY = ~~(winY + e.movementY);
+
+                        windowEle.style.width = winW + 'px';
+                        windowEle.style.height = winH + 'px';
+                        isMax = false;
+
+                        let documentW = window.innerWidth;
+                        let documentH = window.innerHeight;
+                        if (winX > (-winW + 40) && winX < documentW - 40) {
+                            windowEle.style.left = winX + 'px';
+                        }
+                        if (winY >= 0 && winY <= documentH - 40) {
+                            windowEle.style.top = winY + 'px';
+                        }
+                    }
+                })
+
+                window.addEventListener('mouseup', () => {
+                    draw = false;
+                    console.log(winX, winY);
+                })
+
+
+
+                const max = document.querySelector('.btn-max');
+                let isMax = false;
+                max.onclick = () => {
+                    const content = document.querySelector('.window .content');
+                    content.style.display = '';
+                    isMin = false;
+                    if (isMax) {
+                        isMax = false;
+                        windowEle.style.transition = 'width .3s, height .3s, left .3s, top .3s';
+                        windowEle.style.left = winX + 'px';
+                        windowEle.style.top = winY + 'px';
+                        setTimeout(() => {
+                            windowEle.style.width = winW + 'px';
+                            windowEle.style.height = winH + 'px';
+                            setTimeout(() => {
+                                windowEle.style.transition = 'width .3s, height .3s';
+                            }, 300)
+                        }, 50)
+                    } else {
+                        isMax = true;
+                        windowEle.style.transition = 'width .3s, height .3s, left .3s, top .3s';
+                        windowEle.style.width = '100%';
+                        windowEle.style.height = '100%';
+                        setTimeout(() => {
+                            windowEle.style.left = '0';
+                            windowEle.style.top = '0';
+                            setTimeout(() => {
+                                windowEle.style.transition = 'width .3s, height .3s';
+                            }, 300)
+                        }, 50)
+                    }
+                }
+
+                const min = document.querySelector('.btn-min');
+                let isMin = false;
+                min.onclick = () => {
+                    const windowEle = document.querySelector('.window');
+                    const content = document.querySelector('.window .content');
+                    if (isMin) {
+                        isMin = false;
+                        windowEle.style.transition = 'width .3s, height .3s, left .3s, top .3s';
+                        windowEle.style.top = winY + 'px';
+                        windowEle.style.left = winX + 'px';
+                        content.style.display = '';
+                        setTimeout(() =>{
+                            windowEle.style.width = winW + 'px';
+                            windowEle.style.height = winH + 'px';
+                            setTimeout(() =>{
+                                windowEle.style.transition = 'width .3s, height .3s';
+                            }, 300)
+                        }, 50)
+                    } else {
+                        isMin = true;
+                        windowEle.style.transition = 'width .3s, height .3s, left .3s, top .3s';
+                        windowEle.style.width = '120px';
+                        windowEle.style.height = '40px';
+                        setTimeout(() => {
+                            windowEle.style.left = '0';
+                            windowEle.style.top = (window.innerHeight - 40) + 'px';
+                            content.style.display = 'none';
+                            setTimeout(() => {
+                                windowEle.style.transition = 'width .3s, height .3s';
+                            }, 300)
+                        }, 50)
+                    }
+                }
+
+                const close = document.querySelector('.btn-close');
+                close.onclick = () => {
+                    const windowEle = document.querySelector('.window');
+                    windowEle.style.animation = 'shake .1s';
+                    setTimeout(() =>{
+                        windowEle.style.animation = 'none';
+                    }, 100)
+                }
+            })()
+
+
+            let background = [
+                'https://cdn.jsdelivr.net/gh/yuunie/image/1.jpeg',
+                'https://cdn.jsdelivr.net/gh/yuunie/image/mac.jpg',
+                'https://cdn.jsdelivr.net/gh/yuunie/image/mac-001.jpg',
+                'https://cdn.jsdelivr.net/gh/yuunie/image/mac-003.jpg',
+                'https://cdn.jsdelivr.net/gh/yuunie/image/mac-004.jpg',
+                'https://cdn.jsdelivr.net/gh/yuunie/image/mac-005.jpg',
+                'https://cdn.jsdelivr.net/gh/yuunie/image/mac-006.jpg',
+            ]
+            let bg = background[rand(0, background.length - 1)];
+            const container = document.querySelector('.container');
+            container.style.backgroundImage = 'url(' + bg + ')';
+
+
+            function rand(min, max){
+                let r;
+                r = Math.round(Math.random() * (max - min) + min);
+                // 数值不对时 递归获取 直到数据正确
+                if (r < min || r > max) {
+                    r = rand(min, max);
+                }
+                return r;
+            }
+        </script>
+    </body>
+</html>
