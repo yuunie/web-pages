@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>代办事项</title>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .sub {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        .domain {
+            padding-left: 1rem;
+        }
+        .sub {
+            position: absolute;
+            /* border: 2px solid blue; */
+            border-radius: 9999px;
+            width: 360px;
+            height: 360px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: xuanzhuan 1s linear infinite;
+        }
+        .sub > a {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+            position: absolute;
+            line-height: 2rem;
+            animation: xuanzhuan1 1s linear infinite;
+        }
+         
+        a {
+            color: blue;
+        }
+        a:hover {
+            outline: gold;
+        }
+        a:active {
+            color: blue;
+        }
+        a:visited {
+            color: blue;
+        }
+        
+
+        @keyframes xuanzhuan {
+            0% {
+                transform:rotate(0);
+            }
+            100% {
+                transform:rotate(360deg);
+            }
+        }
+        @keyframes xuanzhuan1 {
+            0% {
+                transform:rotate(0);
+            }
+            100% {
+                transform:rotate(-360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sub">
+            <a href="//www.atodo.cn">www</a>
+            <a href="//player.atodo.cn">player</a>
+            <a href="//test.atodo.cn">test</a>
+        </div>
+        <div class="domain">.ATODO.cn</div>
+    </div>
+
+    <script>
+        // 计算数量
+
+        // 获取单个元素宽高 / 2
+
+        // 通过算法算出每一个应该显示在圆上的位置
+
+        // 圆旋转 文字反向旋转
+
+        // 鼠标放入 停止旋转
+
+        const sub = document.querySelector('.sub');
+        const subAs = document.querySelectorAll('.sub > a');
+
+        const subAsCount = Object.values(subAs).length;
+        console.log(subAsCount);
+        const angle = 360 / subAsCount;
+        
+        sub.addEventListener('mouseover', function () {
+            sub.style.animationPlayState = 'paused';
+            Object.values(subAs).map(item => {
+                item.style.animationPlayState = 'paused';
+            })
+        })
+        sub.addEventListener('mouseout', function () {
+            sub.style.animationPlayState = 'running';
+            Object.values(subAs).map(item => {
+                item.style.animationPlayState = 'running';
+            })
+        })
+
+        
+        // 元素位置计算
+        const r = 180;
+        let a = 0;
+        const xx = yy = r;
+        Object.values(subAs).map(item => {
+            let w2 = item.offsetWidth / 2;
+            let h2 = item.offsetHeight / 2;
+            let x = xx + r * Math.cos(a * Math.PI / 180);
+            let y = yy + r * Math.sin(a * Math.PI / 180);
+            x = ~~x - ~~w2;
+            y = ~~y - ~~h2;
+            item.style.left = x + 'px';
+            item.style.top = y + 'px';
+            console.log('===');
+            a = a > 360 ? 0 : a + angle;
+        })
+
+        
+    </script>
+</body>
+</html>
